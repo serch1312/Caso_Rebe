@@ -162,19 +162,19 @@ tr:hover td{background:rgba(255,255,255,.015)}
 
 <!-- TABS -->
 <div class="tabs">
-  <button class="tab active" onclick="showTab('overview',this)">Overview</button>
-  <button class="tab" onclick="showTab('eda',this)">EDA & Tendencia</button>
-  <button class="tab" onclick="showTab('products',this)">Top 3 Productos</button>
+  <button class="tab active" onclick="showTab('eda',this)">EDA & Tendencia</button>
+  <button class="tab" onclick="showTab('products',this)">Casos de Estudio</button>
   <button class="tab" onclick="showTab('notes',this)">Notas de Datos</button>
+  <button class="tab" onclick="showTab('overview',this)">Conclusiones</button>
 </div>
 
 <!-- ═══ PANEL: OVERVIEW ═══════════════════════════════════════════════════════ -->
-<div id="panel-overview" class="panel active">
+<div id="panel-overview" class="panel">
 
   <div class="kpi-grid">
     <div class="kpi"><div class="kpi-lbl">Período</div><div class="kpi-val">9</div><div class="kpi-sub">meses analizados</div></div>
     <div class="kpi"><div class="kpi-lbl">Registros</div><div class="kpi-val">273K</div><div class="kpi-sub">274,159 filas</div></div>
-    <div class="kpi"><div class="kpi-lbl">Tráfico Mobile</div><div class="kpi-val" style="color:#f97316">92%</div><div class="kpi-sub">Canal dominante</div></div>
+    <div class="kpi"><div class="kpi-lbl">Tráfico Mobile</div><div class="kpi-val" style="color:#f97316">93.2%</div><div class="kpi-sub">Canal dominante</div></div>
     <div class="kpi"><div class="kpi-lbl">Seleccionados</div><div class="kpi-val">3</div><div class="kpi-sub">Mayor oportunidad</div></div>
   </div>
 
@@ -228,7 +228,7 @@ tr:hover td{background:rgba(255,255,255,.015)}
 </div>
 
 <!-- ═══ PANEL: EDA ════════════════════════════════════════════════════════════ -->
-<div id="panel-eda" class="panel">
+<div id="panel-eda" class="panel active">
 
   <!-- Device distribution -->
   <div class="card">
@@ -311,6 +311,34 @@ tr:hover td{background:rgba(255,255,255,.015)}
           <div class="funnel-row"><span class="funnel-lbl">Checkout → Compra (mobile)</span><div class="funnel-vals"><span class="fv fv-h2">H2: 7.65%</span><span class="fv-arr">→</span><span class="fv fv-bad">Q1: 5.49% ↓ −28%</span></div></div>
         </div>
 
+        <!-- Tabla mensual P4 -->
+        <div style="margin:16px 0">
+          <div style="font-size:10px;color:#64748b;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px">CVR mensual detallado — todos los dispositivos</div>
+          <table style="width:100%;border-collapse:collapse;font-size:12px">
+            <thead>
+              <tr style="border-bottom:1px solid #1e293b">
+                <th style="padding:7px 12px;color:#64748b;font-weight:600;font-size:10px;letter-spacing:.06em;text-transform:uppercase;text-align:left">Mes</th>
+                <th style="padding:7px 12px;color:#64748b;font-weight:600;font-size:10px;letter-spacing:.06em;text-transform:uppercase;text-align:right">CVR Total</th>
+                <th style="padding:7px 12px;color:#64748b;font-weight:600;font-size:10px;letter-spacing:.06em;text-transform:uppercase;text-align:right">Vista→Checkout</th>
+                <th style="padding:7px 12px;color:#64748b;font-weight:600;font-size:10px;letter-spacing:.06em;text-transform:uppercase;text-align:right">Checkout→Compra</th>
+                <th style="padding:7px 12px;color:#64748b;font-weight:600;font-size:10px;letter-spacing:.06em;text-transform:uppercase;text-align:right">Vistas</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid rgba(30,41,59,.5)"><td style="padding:7px 12px;color:#94a3b8">Jul 25</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">0.65%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">5.02%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#86efac">12.95%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#475569">339K</td></tr>
+              <tr style="border-bottom:1px solid rgba(30,41,59,.5)"><td style="padding:7px 12px;color:#94a3b8">Ago 25</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">0.49%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">6.01%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#86efac">8.23%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#475569">167K</td></tr>
+              <tr style="border-bottom:1px solid rgba(30,41,59,.5);background:rgba(239,68,68,.05)"><td style="padding:7px 12px;color:#f1f5f9;font-weight:600">Sep 25 ⚠</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#fca5a5">0.15%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#fca5a5">4.19%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#fca5a5">3.50%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#475569">567K</td></tr>
+              <tr style="border-bottom:1px solid rgba(30,41,59,.5)"><td style="padding:7px 12px;color:#94a3b8">Oct 25</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">0.42%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">5.97%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">7.10%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#475569">193K</td></tr>
+              <tr style="border-bottom:1px solid rgba(30,41,59,.5)"><td style="padding:7px 12px;color:#94a3b8">Nov 25</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">0.79%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">7.92%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#86efac">9.97%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#475569">201K</td></tr>
+              <tr style="border-bottom:1px solid rgba(30,41,59,.5)"><td style="padding:7px 12px;color:#94a3b8">Dic 25</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">0.83%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">8.67%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#86efac">9.56%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#475569">106K</td></tr>
+              <tr style="border-bottom:1px solid rgba(30,41,59,.5);border-left:2px solid rgba(59,130,246,.5)"><td style="padding:7px 12px;color:#93c5fd;font-weight:600">Ene 26</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#fca5a5">0.33%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">6.12%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#fca5a5">5.35%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#475569">433K</td></tr>
+              <tr style="border-bottom:1px solid rgba(30,41,59,.5);border-left:2px solid rgba(59,130,246,.5)"><td style="padding:7px 12px;color:#93c5fd;font-weight:600">Feb 26</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#fca5a5">0.36%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">6.17%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#fca5a5">5.84%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#475569">206K</td></tr>
+              <tr style="border-left:2px solid rgba(59,130,246,.5)"><td style="padding:7px 12px;color:#93c5fd;font-weight:600">Mar 26</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">0.53%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">6.53%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">8.17%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#475569">107K</td></tr>
+            </tbody>
+          </table>
+          <div style="font-size:12px;color:#64748b;margin-top:10px;font-style:italic">⚠ Septiembre 2025: los checkouts casi se triplicaron (10K→23K) pero las compras no se movieron (826→833). El Checkout→Compra colapsa de 8.23% a 3.50% — señal de que algo cambió en el proceso de pago ese mes. Columnas azules = Q1 2026.</div>
+        </div>
+
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
           <div>
             <div class="chart-box-title">Tendencia CVR mensual</div>
@@ -326,10 +354,26 @@ tr:hover td{background:rgba(255,255,255,.015)}
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">
-          <div class="info-cell"><div class="info-cell-lbl">Diagnóstico</div><div class="info-cell-txt">El CVR Vista→Checkout mejoró +14% — el usuario quiere comprar. Pero el CVR Checkout→Compra cayó −28%. La pérdida ocurre en el último paso. La caída viene desde septiembre 2025, gradual.</div></div>
-          <div class="info-cell"><div class="info-cell-lbl">Hipótesis</div><div class="info-cell-txt">Un cambio técnico en el checkout mobile entre Sep-Oct 2025 introdujo fricción: nuevo paso de validación, incompatibilidad con métodos de pago o degradación de velocidad de carga.</div></div>
-          <div class="info-cell" style="background:#0a1528;border:1px solid #1e3a5f"><div class="info-cell-lbl" style="color:#60a5fa">Experimento A/B</div><div class="info-cell-txt">Auditar checkout mobile paso a paso. Variante A: Apple Pay / Google Pay prominentes, menos pasos. Variante B: barra de progreso con indicadores de seguridad.</div></div>
+        <div style="background:#0f172a;border-left:3px solid #3b82f6;border-radius:0 8px 8px 0;padding:16px 20px;margin-bottom:16px">
+          <div style="font-size:10px;color:#64748b;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px">Diagnóstico</div>
+          <p style="color:#cbd5e1;font-size:13px;line-height:1.7;margin-bottom:12px">El patrón de Producto 4 es el opuesto al de Producto 3. El <strong style="color:#f1f5f9">CVR Vista→Checkout mejoró</strong> entre H2 2025 y Q1 2026 — la página del producto está funcionando bien y los usuarios tienen intención de comprar. Sin embargo, el <strong style="color:#f1f5f9">CVR Checkout→Compra cayó −28%</strong> en mobile en el mismo período.</p>
+          <p style="color:#cbd5e1;font-size:13px;line-height:1.7;margin-bottom:12px">La tabla mensual revela un patrón que se repite consistentemente desde agosto 2025: <strong style="color:#f1f5f9">cuando el CVR Vista→Checkout sube, el Checkout→Compra cae</strong>. Agosto: V→C sube a 6.01%, C→P cae a 8.23%. Septiembre: vistas explotan a 567K, C→P se hunde a 3.50%. Octubre-Diciembre: vistas se normalizan, C→P se recupera a 7-9%. Enero-Febrero 2026: V→C vuelve a subir, C→P cae de nuevo a 5.35% y 5.84%.</p>
+          <p style="color:#cbd5e1;font-size:13px;line-height:1.7;margin-bottom:0">Esto sugiere que hay un segmento de usuarios con suficiente intención para llegar al checkout pero no para completar el pago — posiblemente por precio, fricción en el formulario o falta de métodos de pago adecuados en mobile. <strong style="color:#f1f5f9">No es quién llega, sino qué encuentra cuando intenta pagar.</strong></p>
+        </div>
+
+        <div style="background:#0f172a;border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;padding:16px 20px;margin-bottom:16px">
+          <div style="font-size:10px;color:#64748b;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px">Tipo de problema</div>
+          <p style="color:#cbd5e1;font-size:13px;line-height:1.7;margin-bottom:0">Es un problema de <strong style="color:#f1f5f9">fricción en el bottom funnel</strong> (parte inferior del embudo). El usuario llega al producto, se convence de comprarlo e inicia el proceso de pago, pero algo dentro de ese flujo lo detiene. La caída no tiene un quiebre abrupto como Producto 3 — el patrón viene construyéndose desde agosto 2025 — lo que apunta a un deterioro estructural en el proceso de pago más que a un evento puntual de tráfico.</p>
+        </div>
+
+        <div style="background:#0a1e0f;border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:16px 20px;margin-bottom:16px">
+          <div style="font-size:10px;color:#22c55e;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Insight clave</div>
+          <p style="color:#cbd5e1;font-size:13px;line-height:1.7;margin-bottom:0">El usuario ya tomó la decisión de comprar. La pérdida ocurre en el último paso, que es el más costoso porque el costo de adquisición ya fue pagado y la venta se pierde a metros de la meta. Un problema en esta etapa tiene mayor urgencia relativa que un problema de intención.</p>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+          <div class="info-cell"><div class="info-cell-lbl">Hipótesis</div><div class="info-cell-txt">El crecimiento sostenido de vistas arrastra más usuarios al checkout, lo que expone una fricción que ya existía en el proceso de pago mobile — nuestro canal principal con el 93.2% del tráfico. Puede ser el botón de compra que no responde correctamente en ciertos dispositivos, el formulario de datos largo o confuso en pantalla pequeña, o un paso de validación que genera abandono en el último metro.</div></div>
+          <div class="info-cell" style="background:#0a1528;border:1px solid #1e3a5f"><div class="info-cell-lbl" style="color:#60a5fa">Experimento A/B</div><div class="info-cell-txt">Auditar el checkout mobile paso a paso. Variante A: Apple Pay / Google Pay como opciones prominentes, reduciendo pasos de formulario. Variante B: barra de progreso con indicadores de seguridad visibles. Baseline: checkout actual.</div></div>
         </div>
 
         <div class="uplift-row">
@@ -525,11 +569,6 @@ tr:hover td{background:rgba(255,255,255,.015)}
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-title">📐 Nota metodológica — cálculo de CVRs</div>
-    <p style="color:#94a3b8;font-size:13px;line-height:1.7;margin-bottom:12px">Todos los CVRs se calcularon sumando totales primero y dividiendo después: <strong style="color:#f1f5f9">CVR = Σ Compras / Σ Vistas</strong>. Si se calcula el CVR fila por fila y luego se promedia, una fila con 1 vista y 1 compra (CVR = 100%) pesa igual que una con 500,000 vistas y 1,000 compras (CVR = 0.2%), distorsionando el resultado.</p>
-    <p style="color:#94a3b8;font-size:13px;line-height:1.7">Las columnas de CVR precalculadas del dataset original fueron eliminadas y recalculadas desde los totales de Viewed, Checked Out y Purchased.</p>
-  </div>
 
 </div>
 
@@ -601,7 +640,8 @@ function initOverview(){
   });
 }
 chartsInited['overview']=true;
-setTimeout(()=>initOverview(),50);
+chartsInited['eda']=true;
+setTimeout(()=>{initOverview();initEDA();},50);
 
 // ── EDA CHARTS ────────────────────────────────────────────────────────────────
 function initEDA(){
