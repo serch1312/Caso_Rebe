@@ -3,337 +3,797 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Análisis CRO — Ecommerce Dispositivos de Pago</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<title>Análisis de CVR</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8f9fa;color:#1a1a2e;line-height:1.6}
-  .container{max-width:960px;margin:0 auto;padding:32px 24px}
-  .header{margin-bottom:32px}
-  .header-eyebrow{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
-  h1{font-size:28px;font-weight:700;color:#1a1a2e;margin-bottom:6px}
-  .header-sub{font-size:13px;color:#666}
-  .tabs{display:flex;gap:0;border-bottom:1px solid #e0e0e0;margin-bottom:28px}
-  .tab{padding:10px 22px;font-size:13px;cursor:pointer;border:none;background:none;color:#888;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit}
-  .tab:hover{color:#1a1a2e}
-  .tab.active{color:#1a1a2e;font-weight:600;border-bottom:2px solid #D85A30}
-  .pane{display:none}.pane.active{display:block}
-  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
-  .metric{background:#fff;border-radius:10px;padding:18px 20px;border:1px solid #ebebeb}
-  .metric-label{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
-  .metric-value{font-size:26px;font-weight:700;color:#1a1a2e}
-  .metric-sub{font-size:11px;color:#aaa;margin-top:4px}
-  .card{background:#fff;border-radius:12px;border:1px solid #ebebeb;padding:20px 24px;margin-bottom:16px}
-  .card-title{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px}
-  .bar-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #f0f0f0}
-  .bar-row:last-child{border-bottom:none}
-  .bar-name{width:210px;font-size:13px;color:#1a1a2e}
-  .bar-track{flex:1;background:#f4f4f4;border-radius:4px;height:6px;overflow:hidden}
-  .bar-fill-neg{height:100%;border-radius:4px;background:#E24B4A}
-  .bar-fill-pos{height:100%;border-radius:4px;background:#4CAF50}
-  .bar-pct{width:52px;text-align:right;font-size:13px;font-weight:600}
-  .neg{color:#E24B4A}.pos{color:#4CAF50}
-  .tag{font-size:10px;padding:2px 8px;border-radius:20px;white-space:nowrap}
-  .tag-sel{background:#FAECE7;color:#993C1D}
-  .tag-mej{background:#E8F5E9;color:#2E7D32}
-  .tag-exc{background:#f4f4f4;color:#888}
-  .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-  .box{background:#f8f9fa;border-radius:8px;padding:14px 16px}
-  .box-title{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
-  .box-text{font-size:13px;color:#1a1a2e;line-height:1.6}
-  .uplift{font-size:15px;font-weight:700;color:#2E7D32;margin-top:8px}
-  .chart-wrap{position:relative;width:100%;height:280px}
-  .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:12px;color:#666}
-  .legend-dot{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:4px}
-  .section-intro{font-size:13px;color:#666;line-height:1.7;margin-bottom:20px}
-  .product-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;cursor:pointer;border-radius:12px;border:1px solid #ebebeb;margin-bottom:8px;background:#fff;transition:background .15s}
-  .product-header:hover{background:#fafafa}
-  .product-body{border:1px solid #ebebeb;border-radius:12px;padding:20px 24px;margin-bottom:8px;display:none}
-  .product-body.open{display:block}
-  .badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.04em}
-  .badge-top{background:#FAECE7;color:#993C1D}
-  .badge-bot{background:#E6F1FB;color:#185FA5}
-  .decline{font-size:18px;font-weight:700;color:#E24B4A;background:#FCEBEB;padding:2px 10px;border-radius:6px}
-  .row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px}
-  .diag-box{background:#f8f9fa;border-radius:8px;padding:14px 16px}
-  .warn-box{background:#FFF8F6;border-radius:8px;padding:14px 16px;border-left:3px solid #D85A30}
-  .warn-title{font-size:11px;font-weight:600;color:#993C1D;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
-  .action-box{background:#f8f9fa;border-radius:8px;padding:16px 18px;border-top:3px solid var(--accent)}
-  .rank{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex-shrink:0}
-  .hdr-left{display:flex;align-items:center;gap:14px}
-  .hdr-right{display:flex;align-items:center;gap:12px}
-  .arrow{color:#aaa;font-size:14px;transition:transform .2s}
-  .arrow.open{transform:rotate(180deg)}
-  .prod-name{font-size:15px;font-weight:600;color:#1a1a2e}
-  .prod-sub{font-size:12px;color:#888;margin-top:2px}
-  .kpi-label{font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
-  .kpi-val{font-size:13px;font-weight:600}
-  .note-red{background:#FEF2F2;border-radius:10px;padding:16px 20px;margin-bottom:12px;border-left:4px solid #E24B4A}
-  .note-blue{background:#EFF6FF;border-radius:10px;padding:16px 20px;margin-bottom:12px;border-left:4px solid #3B82F6}
-  .note-gray{background:#f8f9fa;border-radius:10px;padding:16px 20px;border:1px solid #ebebeb}
-  .note-title{font-size:12px;font-weight:700;margin-bottom:8px}
-  .note-body{font-size:13px;line-height:1.7}
-  .arrow-item::before{content:"→ ";color:#D85A30}
-  .chart-mini{position:relative;width:100%;height:160px}
-  @media(max-width:640px){.metrics,.row2,.row3{grid-template-columns:1fr}.bar-name{width:140px}}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#060b14;color:#f1f5f9;font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.6;min-height:100vh;padding:32px 24px}
+.wrap{max-width:1050px;margin:0 auto}
+
+/* HEADER */
+.header{display:flex;align-items:flex-start;gap:12;margin-bottom:32px}
+.accent-bar{width:4px;height:44px;background:linear-gradient(135deg,#f97316,#3b82f6);border-radius:4px;flex-shrink:0;margin-right:12px}
+.header-meta{font-size:11px;color:#64748b;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.header-title{font-size:26px;font-weight:800;color:#f8fafc}
+.header-sub{font-size:13px;color:#475569;margin-top:6px}
+
+/* TABS */
+.tabs{display:flex;gap:4;border-bottom:1px solid #1e293b;margin-bottom:28px}
+.tab{background:none;border:none;cursor:pointer;padding:10px 20px;color:#475569;font-size:13px;font-weight:400;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;font-family:'DM Sans',sans-serif}
+.tab.active{color:#f1f5f9;font-weight:700;border-bottom:2px solid #f97316}
+.tab:hover{color:#94a3b8}
+
+/* PANELS */
+.panel{display:none}.panel.active{display:flex;flex-direction:column;gap:20px}
+
+/* CARDS */
+.card{background:#0d1929;border:1px solid #1e293b;border-radius:10px;padding:20px 24px}
+.card-title{font-size:11px;color:#64748b;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.kpi{background:#0d1929;border:1px solid #1e293b;border-radius:10px;padding:18px 20px}
+.kpi-lbl{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.kpi-val{font-size:28px;font-weight:800;color:#f1f5f9;margin-bottom:4px}
+.kpi-sub{font-size:11px;color:#475569}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{color:#64748b;font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:8px 12px;text-align:left;border-bottom:1px solid #1e293b}
+td{padding:10px 12px;border-bottom:1px solid #1e293b;color:#94a3b8}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.015)}
+.mono{font-family:'DM Mono',monospace;font-size:12px}
+.bold{color:#f1f5f9;font-weight:700}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 10px;border-radius:20px;font-family:'DM Mono',monospace}
+.badge-red{background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.25)}
+.badge-green{background:rgba(34,197,94,.15);color:#86efac;border:1px solid rgba(34,197,94,.25)}
+.badge-tag{font-size:10px;padding:2px 8px;border-radius:20px;margin-left:6px;vertical-align:middle;font-family:'DM Mono',monospace;font-weight:700}
+
+/* BAR ROW */
+.bar-row{display:flex;align-items:center;gap:12;padding:8px 0;border-bottom:1px solid #1e293b}
+.bar-row:last-child{border-bottom:none}
+.bar-name{width:180px;font-size:13px;color:#cbd5e1;flex-shrink:0}
+.bar-track{flex:1;background:#0a101e;border-radius:6px;height:6px;overflow:hidden}
+.bar-fill{height:100%;border-radius:6px}
+.bar-pct{font-size:13px;font-weight:700;width:48px;text-align:right;font-family:'DM Mono',monospace;flex-shrink:0}
+.bar-note{font-size:10px;padding:2px 8px;border-radius:20px;width:120px;text-align:center;font-family:'DM Mono',monospace;flex-shrink:0}
+
+/* EXPANDABLE PRODUCT CARD */
+.p-card{border:1px solid #1e293b;border-radius:12px;overflow:hidden;background:#0a101e;transition:border-color .3s,box-shadow .3s}
+.p-card-p4.open{border-color:#3b82f6;box-shadow:0 0 24px rgba(59,130,246,.1)} .p-card-p3.open{border-color:#f97316;box-shadow:0 0 24px rgba(249,115,22,.1)} .p-card-p5.open{border-color:#a855f7;box-shadow:0 0 24px rgba(168,85,247,.1)}
+.p-header{width:100%;background:none;border:none;cursor:pointer;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;text-align:left;font-family:'DM Sans',sans-serif}
+.p-header:hover{background:rgba(255,255,255,.02)}
+.p-left{display:flex;align-items:center;gap:16px}
+.p-num{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;flex-shrink:0}
+.p-name{font-size:16px;font-weight:700;color:#f1f5f9}
+.p-meta{font-size:12px;color:#64748b;margin-top:2px}
+.p-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.p-decline{font-weight:800;font-size:18px;color:#ef4444;background:#ef444411;border-radius:6px;padding:2px 10px}
+.p-chevron{color:#475569;font-size:16px;transition:transform .3s}
+.p-card.open .p-chevron{transform:rotate(180deg)}
+.p-body{max-height:0;overflow:hidden;transition:max-height .5s cubic-bezier(.16,1,.3,1)}
+.p-card.open .p-body{max-height:3000px}
+.p-inner{padding:0 24px 24px;border-top:1px solid #1e293b}
+
+/* CHART GRID */
+.chart-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.chart-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.chart-grid-6{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.chart-box{background:#0a101e;border:1px solid #1e293b;border-radius:10px;padding:14px 16px}
+.chart-box-title{font-size:10px;color:#64748b;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px}
+
+/* SECTION BOX */
+.sbox{background:#0f172a;border-left:3px solid #334155;border-radius:0 8px 8px 0;padding:14px 18px}
+.sbox.orange{border-color:#f97316}
+.sbox.blue{border-color:#3b82f6}
+.sbox.red{border-color:#ef4444}
+.sbox.green{border-color:#22c55e}
+.sbox.gold{border-color:#f59e0b}
+.sbox-lbl{font-size:10px;color:#64748b;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.sbox-txt{font-size:13px;color:#cbd5e1;line-height:1.65}
+
+/* INFO GRID */
+.info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.info-cell{background:#0f172a;border-radius:8px;padding:14px 16px}
+.info-cell-lbl{font-size:10px;color:#64748b;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.info-cell-txt{font-size:12px;color:#cbd5e1;line-height:1.6}
+
+/* UPLIFT ROW */
+.uplift-row{background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center}
+.uplift-val{color:#22c55e;font-weight:800;font-size:28px;font-family:'DM Mono',monospace}
+
+/* HEATMAP */
+.heatmap{width:100%;border-collapse:collapse;font-size:11px}
+.heatmap th{padding:7px 10px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#475569;font-weight:400;white-space:nowrap}
+.heatmap td{padding:8px 10px;text-align:center;font-family:'DM Mono',monospace;font-size:11px;border:1px solid rgba(30,41,59,.3);cursor:default;transition:transform .1s}
+.heatmap td:hover{transform:scale(1.08);z-index:1;position:relative}
+.heatmap .rl{text-align:left;padding:8px 14px;font-size:12px;color:#94a3b8;white-space:nowrap;font-family:'DM Sans',sans-serif;font-weight:600}
+
+/* ANOMALY */
+.anomaly-red{background:#1a0a0a;border:1px solid rgba(127,29,29,.4);border-radius:10px;padding:18px 22px}
+.anomaly-blue{background:#0d1929;border:1px solid rgba(30,45,64,.8);border-radius:10px;padding:18px 22px}
+.anomaly-lbl{font-weight:700;font-size:13px;margin-bottom:8px}
+.anomaly-txt{color:#94a3b8;font-size:13px;line-height:1.7}
+
+/* DEVICE BAR */
+.dev-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.dev-lbl{width:70px;font-size:13px;color:#94a3b8;flex-shrink:0}
+.dev-track{flex:1;background:#0a101e;border-radius:5px;height:10px;overflow:hidden}
+.dev-fill{height:100%;border-radius:5px}
+.dev-pct{font-family:'DM Mono',monospace;font-size:12px;color:#94a3b8;width:45px;text-align:right;flex-shrink:0}
+.dev-ses{font-family:'DM Mono',monospace;font-size:11px;color:#475569;width:90px;flex-shrink:0}
+
+/* MISSING ITEMS */
+.missing-item{display:flex;gap:12px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #1e293b}
+.missing-item:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.missing-arrow{color:#f97316;flex-shrink:0;font-size:14px;margin-top:2px}
+.missing-title{color:#f1f5f9;font-size:13px;font-weight:600;margin-bottom:4px}
+.missing-desc{color:#94a3b8;font-size:13px;line-height:1.6}
+
+/* FUNNEL ROW */
+.funnel-row{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(255,255,255,.02);border-radius:6px;margin-bottom:4px}
+.funnel-lbl{font-size:13px;color:#94a3b8}
+.funnel-vals{display:flex;gap:8px;align-items:center}
+.fv{font-family:'DM Mono',monospace;font-size:12px;padding:3px 10px;border-radius:4px;font-weight:500}
+.fv-h2{background:rgba(59,130,246,.15);color:#93c5fd}
+.fv-bad{background:rgba(239,68,68,.15);color:#fca5a5}
+.fv-good{background:rgba(34,197,94,.15);color:#86efac}
+.fv-arr{color:#475569;font-size:11px}
+
+/* FOOTER */
+.footer{margin-top:36px;border-top:1px solid #1e293b;padding-top:16px;display:flex;justify-content:space-between;align-items:center}
+.footer p{color:#334155;font-size:11px}
 </style>
 </head>
 <body>
-<div class="container">
+<div class="wrap">
 
-  <div class="header">
-    <div class="header-eyebrow">CRO · Ecommerce Dispositivos de Pago</div>
-    <h1>Análisis de oportunidades de conversión</h1>
-    <div class="header-sub">Jul 2025 – Mar 2026 · 273,820 registros · 3 dispositivos · 7 productos</div>
+<!-- HEADER -->
+<div style="display:flex;align-items:flex-start;gap:0;margin-bottom:32px">
+  <div class="accent-bar"></div>
+  <div>
+    <div class="header-meta">CRO Analysis · Ecommerce Dispositivos de Pago</div>
+    <div class="header-title">Análisis de CVR</div>
+    <div class="header-sub">273,820 registros · 7 productos · 3 dispositivos · Jul 2025 – Mar 2026</div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="showTab('eda',this)">EDA & Tendencia</button>
+  <button class="tab" onclick="showTab('products',this)">Casos de Estudio</button>
+  <button class="tab" onclick="showTab('notes',this)">Notas de Datos</button>
+  <button class="tab" onclick="showTab('overview',this)">Conclusiones</button>
+</div>
+
+<!-- ═══ PANEL: OVERVIEW ═══════════════════════════════════════════════════════ -->
+<div id="panel-overview" class="panel">
+
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-lbl">Período</div><div class="kpi-val">9</div><div class="kpi-sub">meses analizados</div></div>
+    <div class="kpi"><div class="kpi-lbl">Registros</div><div class="kpi-val">273K</div><div class="kpi-sub">274,159 filas</div></div>
+    <div class="kpi"><div class="kpi-lbl">Tráfico Mobile</div><div class="kpi-val" style="color:#f97316">93.2%</div><div class="kpi-sub">Canal dominante</div></div>
+    <div class="kpi"><div class="kpi-lbl">Seleccionados</div><div class="kpi-val">3</div><div class="kpi-sub">Mayor oportunidad</div></div>
   </div>
 
-  <div class="tabs">
-    <button class="tab active" onclick="showTab('overview')">Overview</button>
-    <button class="tab" onclick="showTab('products')">Top 3 productos</button>
-    <button class="tab" onclick="showTab('notes')">Notas de datos</button>
+  <!-- Comparativa table -->
+  <div class="card">
+    <div class="card-title">Comparativa CVR Total — H2 2025 vs Q1 2026 <span style="font-weight:400;color:#475569;font-size:10px">Filtrado por Mobile · 93.2% del tráfico</span></div>
+    <table>
+      <thead><tr><th>Producto</th><th>CVR H2 2025</th><th>CVR Q1 2026</th><th>Cambio</th><th>Vistas Q1</th><th>Estado</th></tr></thead>
+      <tbody>
+        <tr><td class="bold">Producto 3 <span class="badge-tag" style="background:rgba(249,115,22,.15);color:#f97316;border:1px solid rgba(249,115,22,.25)">Seleccionado</span></td><td class="mono">0.2541%</td><td class="mono">0.1188%</td><td><span class="badge badge-red">−53%</span></td><td class="mono">3.2M</td><td><span class="badge-tag" style="background:rgba(249,115,22,.1);color:#fb923c">Top Funnel</span></td></tr>
+        <tr><td class="bold">Producto 4 <span class="badge-tag" style="background:rgba(59,130,246,.15);color:#3b82f6;border:1px solid rgba(59,130,246,.25)">Seleccionado</span></td><td class="mono">0.4123%</td><td class="mono">0.3375%</td><td><span class="badge badge-red">−18%</span></td><td class="mono">699K</td><td><span class="badge-tag" style="background:rgba(59,130,246,.1);color:#60a5fa">Bottom Funnel</span></td></tr>
+        <tr><td class="bold">Producto 5 <span class="badge-tag" style="background:rgba(168,85,247,.15);color:#a855f7;border:1px solid rgba(168,85,247,.25)">Seleccionado</span></td><td class="mono">0.1668%</td><td class="mono">0.0553%</td><td><span class="badge badge-red">−67%</span></td><td class="mono">658K</td><td><span class="badge-tag" style="background:rgba(168,85,247,.1);color:#c084fc">Top Funnel</span></td></tr>
+        <tr><td>Kit P5 y accesorios</td><td class="mono">0.1909%</td><td class="mono">0.0121%</td><td><span class="badge badge-red">−94%</span></td><td class="mono">82K</td><td><span class="badge-tag" style="background:rgba(239,68,68,.1);color:#f87171">Volumen bajo</span></td></tr>
+        <tr><td>Producto 2</td><td class="mono">0.3108%</td><td class="mono">0.3585%</td><td><span class="badge badge-green">+15%</span></td><td class="mono">1.2M</td><td><span class="badge-tag" style="background:rgba(34,197,94,.1);color:#4ade80">Mejorando</span></td></tr>
+        <tr><td>Producto 1 <span style="font-size:10px;color:#475569;font-family:'DM Mono',monospace">⚠ tracking</span></td><td class="mono">1.8856%</td><td class="mono">2.0517%</td><td><span class="badge badge-green">+9%</span></td><td class="mono">170K</td><td><span class="badge-tag" style="background:rgba(34,197,94,.1);color:#4ade80">Mejorando*</span></td></tr>
+      </tbody>
+    </table>
   </div>
 
-  <!-- OVERVIEW -->
-  <div id="pane-overview" class="pane active">
-    <div class="metrics">
-      <div class="metric">
-        <div class="metric-label">Período analizado</div>
-        <div class="metric-value">9 meses</div>
-        <div class="metric-sub">Jul 2025 – Mar 2026</div>
-      </div>
-      <div class="metric">
-        <div class="metric-label">Productos analizados</div>
-        <div class="metric-value">6</div>
-        <div class="metric-sub">Excl. (other), (not set) y Accesorios</div>
-      </div>
-      <div class="metric">
-        <div class="metric-label">Productos seleccionados</div>
-        <div class="metric-value">3</div>
-        <div class="metric-sub">Mayor oportunidad de mejora</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Cambio en CVR total (tasa de conversión) — H2 2025 vs Q1 2026</div>
-      <div id="barrows"></div>
-      <p style="font-size:11px;color:#aaa;margin-top:12px">Ordenado de mayor a menor caída. Cambio porcentual relativo al desempeño histórico de cada producto.</p>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Criterio de selección</div>
-      <p class="section-intro">El Kit de Producto 5 y accesorios tiene la mayor caída (−94%) pero con solo 82K vistas en Q1 2026 su impacto absoluto es bajo. Producto 1 y 2 están mejorando. El criterio combina <strong>magnitud de la caída + volumen de vistas + claridad del diagnóstico</strong>.</p>
-      <div class="row3">
-        <div class="box" style="border-left:3px solid #D85A30">
-          <div class="box-title" style="color:#D85A30">Producto 3</div>
-          <div class="box-text">Top funnel — tráfico sin intención</div>
-          <div class="uplift">+5,824 compras est.</div>
-        </div>
-        <div class="box" style="border-left:3px solid #185FA5">
-          <div class="box-title" style="color:#185FA5">Producto 4</div>
-          <div class="box-text">Bottom funnel — fricción en el pago</div>
-          <div class="uplift">+659 compras est.</div>
-        </div>
-        <div class="box" style="border-left:3px solid #7F77DD">
-          <div class="box-title" style="color:#7F77DD">Producto 5</div>
-          <div class="box-text">Top funnel — tráfico sin intención</div>
-          <div class="uplift">+927 compras est.</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Evolución mensual del CVR total por producto</div>
-      <div class="chart-wrap"><canvas id="lineChart"></canvas></div>
-      <div class="legend" id="line-legend"></div>
-    </div>
+  <!-- Bar chart cambios -->
+  <div class="card">
+    <div class="card-title">Cambio porcentual CVR — H2 2025 → Q1 2026</div>
+    <div style="position:relative;height:180px;width:100%"><canvas id="chartCambios"></div></canvas>
   </div>
 
-  <!-- PRODUCTS -->
-  <div id="pane-products" class="pane">
-    <p class="section-intro">Diagnóstico por producto: dónde se rompe el funnel, tipo de problema y plan de acción. Haz clic para expandir.</p>
-    <div id="product-cards"></div>
-  </div>
-
-  <!-- NOTES -->
-  <div id="pane-notes" class="pane">
-    <div class="note-red">
-      <div class="note-title" style="color:#991B1B">Anomalía de tracking — Accesorios</div>
-      <div class="note-body">Registra 201,194 checkouts contra 74,966 vistas — un ratio de 2.7x matemáticamente imposible. El evento de checkout se dispara cuando el producto llega al carrito por otras vías (cross-sell, bundle) sin generar evento de vista. Sus tasas de conversión son inválidas y el producto fue excluido del análisis.</div>
-    </div>
-    <div class="note-blue">
-      <div class="note-title" style="color:#1E40AF">Anomalía parcial — Producto 1 en desktop</div>
-      <div class="note-body">CVR Vista→Checkout del 342% en desktop (CheckedOut 98K > Viewed 28K). En mobile y tablet los valores son razonables. El análisis de Producto 1 debe hacerse excluyendo desktop o corrigiendo el tag primero.</div>
-    </div>
-    <div class="note-gray">
-      <div class="note-title" style="color:#374151">Datos ausentes críticos para validar los diagnósticos</div>
-      <div class="note-body">
-        <p class="arrow-item">Canal de adquisición / UTM por sesión — sin esto es imposible confirmar la fuente del tráfico de Feb 2026.</p>
-        <p class="arrow-item">Abandono por paso del checkout — necesario para localizar exactamente la fricción en Producto 4.</p>
-        <p class="arrow-item">Historial de cambios en campañas y deploys — para correlacionar el quiebre con un evento de negocio.</p>
-        <p class="arrow-item">Tiempo de carga, bounce rate, scroll depth — para distinguir problema técnico de problema de contenido.</p>
-        <p class="arrow-item">Precio y margen por producto — para calcular impacto económico real y priorizar por ROI.</p>
+  <!-- Criterio selección -->
+  <div class="card">
+    <div class="card-title">Criterio de selección</div>
+    <p style="color:#94a3b8;font-size:13px;line-height:1.7;margin-bottom:16px">
+      El Kit de Producto 5 y accesorios muestra la mayor caída porcentual (−94%), pero con solo 82K vistas en Q1 su impacto absoluto es limitado. El criterio combina <strong style="color:#f1f5f9">magnitud de la caída × volumen de vistas × claridad del problema</strong>. Los tres seleccionados presentan diagnósticos distintos, lo que permite una estrategia diferenciada.
+    </p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+      <div style="background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.2);border-radius:8px;padding:14px 16px">
+        <div style="color:#f97316;font-weight:700;font-size:13px;margin-bottom:2px">Producto 3</div>
+        <div style="color:#64748b;font-size:11px;margin-bottom:2px">Top Funnel · 3.5M vistas</div>
+        <div style="color:#22c55e;font-weight:800;font-size:18px">+4,352 compras</div>
+      </div>
+      <div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:8px;padding:14px 16px">
+        <div style="color:#3b82f6;font-weight:700;font-size:13px;margin-bottom:2px">Producto 4</div>
+        <div style="color:#64748b;font-size:11px;margin-bottom:2px">Bottom Funnel · 746K vistas</div>
+        <div style="color:#22c55e;font-weight:800;font-size:18px">+523 compras</div>
+      </div>
+      <div style="background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.2);border-radius:8px;padding:14px 16px">
+        <div style="color:#a855f7;font-weight:700;font-size:13px;margin-bottom:2px">Producto 5</div>
+        <div style="color:#64748b;font-size:11px;margin-bottom:2px">Top Funnel · 703K vistas</div>
+        <div style="color:#22c55e;font-weight:800;font-size:18px">+733 compras</div>
       </div>
     </div>
   </div>
 
 </div>
 
-<script>
-function showTab(id){
-  document.querySelectorAll('.tab').forEach((t,i)=>{t.classList.toggle('active',['overview','products','notes'][i]===id)});
-  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
-  document.getElementById('pane-'+id).classList.add('active');
-}
+<!-- ═══ PANEL: EDA ════════════════════════════════════════════════════════════ -->
+<div id="panel-eda" class="panel active">
 
-const rows=[
-  {name:'Kit P5 y accesorios',chg:-94,tag:'excluido'},
-  {name:'Producto 5 ★',chg:-65,tag:'seleccionado'},
-  {name:'Producto 3 ★',chg:-56,tag:'seleccionado'},
-  {name:'Producto 4 ★',chg:-19,tag:'seleccionado'},
-  {name:'Producto 2',chg:+15,tag:'mejorando'},
-  {name:'Producto 1',chg:+9,tag:'mejorando'},
-];
-const barcont=document.getElementById('barrows');
-rows.forEach(r=>{
-  const abs=Math.min(Math.abs(r.chg),100);
-  const isNeg=r.chg<0;
-  const tagClass=r.tag==='seleccionado'?'tag-sel':r.tag==='mejorando'?'tag-mej':'tag-exc';
-  barcont.innerHTML+=`<div class="bar-row">
-    <div class="bar-name" style="font-weight:${r.tag==='seleccionado'?600:400}">${r.name}</div>
-    <div class="bar-track"><div class="${isNeg?'bar-fill-neg':'bar-fill-pos'}" style="width:${abs}%"></div></div>
-    <div class="bar-pct ${isNeg?'neg':'pos'}">${r.chg>0?'+':''}${r.chg}%</div>
-    <span class="tag ${tagClass}">${r.tag}</span>
-  </div>`;
-});
-
-const months=['Jul 25','Ago 25','Sep 25','Oct 25','Nov 25','Dic 25','Ene 26','Feb 26','Mar 26'];
-const productData=[
-  {name:'Producto 3',color:'#D85A30',data:[0.2369,0.1787,0.3641,0.3794,0.4389,0.7401,0.4009,0.1363,0.0765]},
-  {name:'Producto 4',color:'#185FA5',data:[0.6502,0.4949,0.1469,0.4237,0.7899,0.8289,0.3272,0.3603,0.5332]},
-  {name:'Producto 5',color:'#7F77DD',data:[0.1348,0.1849,0.1491,0.0000,0.0826,0.7360,0.8136,0.0568,0.0569]},
-  {name:'Producto 1',color:'#aaa',data:[0.5102,7.2580,7.2249,1.6193,2.2173,2.1721,1.5019,1.8588,3.5148]},
-  {name:'Producto 2',color:'#1D9E75',data:[0.0000,0.2028,0.1887,0.3588,0.8343,0.4649,0.3148,0.3291,0.5362]},
-  {name:'Kit P5',color:'#ccc',data:[0.4412,0.1075,0.5260,0.0360,0.0162,0.1387,0.0723,0.0000,0.0000]},
-];
-
-new Chart(document.getElementById('lineChart'),{
-  type:'line',
-  data:{labels:months,datasets:productData.map(p=>({
-    label:p.name,data:p.data,borderColor:p.color,backgroundColor:'transparent',
-    borderWidth:2,pointRadius:3,tension:.3
-  }))},
-  options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},
-    scales:{
-      x:{grid:{color:'#f0f0f0'},ticks:{color:'#888',font:{size:11}}},
-      y:{grid:{color:'#f0f0f0'},ticks:{color:'#888',font:{size:11},callback:v=>v.toFixed(2)+'%'}}
-    }}
-});
-const leg=document.getElementById('line-legend');
-productData.forEach(p=>{
-  leg.innerHTML+=`<span style="display:flex;align-items:center;gap:5px"><span class="legend-dot" style="background:${p.color}"></span>${p.name}</span>`;
-});
-
-const products=[
-  {id:'p3',rank:1,name:'Producto 3',sub:'3.5M vistas en Q1 2026',color:'#D85A30',rankBg:'#FAECE7',
-   issue:'Top funnel',isTop:true,decline:'−56%',uplift:'+5,824',
-   diag:'Mobile concentra el 92% del volumen. El CVR Vista→Checkout cayó de 5.1% (H2 2025) a 3.0% (Q1 2026) mientras el CVR Checkout→Compra se mantuvo estable. Las vistas se multiplicaron por 6 en febrero sin que las compras siguieran el ritmo.',
-   hyp:'Una campaña con segmentación amplia comenzó a enviar usuarios móviles sin perfil B2B a partir de febrero 2026. El producto no cambió — cambió quién llegó a verlo.',
-   gap:'UTMs por sesión para identificar la fuente del tráfico de Feb 2026. Sin esto la hipótesis no se puede confirmar.',
-   action:'Test A/B en página mobile: variante con widget de calificación previo al botón de compra. Objetivo: filtrar tráfico sin intención antes de que diluya el CVR.',
-   kpi:'CVR Vista→Checkout en mobile',
-   lift:'Recuperar 30% del tráfico nuevo a tasa orgánica = ~1,750 compras adicionales/trimestre.',
-   h2:[10.77,5.10,12.76],q1:[8.11,3.00,14.29]},
-  {id:'p4',rank:2,name:'Producto 4',sub:'746K vistas en Q1 2026',color:'#185FA5',rankBg:'#E6F1FB',
-   issue:'Bottom funnel',isTop:false,decline:'−19%',uplift:'+659',
-   diag:'El CVR Vista→Checkout en mobile mejoró +14% — el usuario tiene intención. Sin embargo el CVR Checkout→Compra cayó −28% en mobile. La caída es gradual desde septiembre 2025.',
-   hyp:'Un cambio estructural en el flujo de checkout introdujo fricción entre Sep 2025 y Ene 2026. Posible problema de compatibilidad con métodos de pago móvil.',
-   gap:'Abandono por paso del checkout y registro de deploys entre Sep 2025 y Ene 2026.',
-   action:'Auditar checkout en mobile e implementar Apple Pay / Google Pay como opción prominente. Test A/B vs. checkout actual.',
-   kpi:'CVR Checkout→Compra en mobile',
-   lift:'Recuperar niveles de Dic 2025 (9.56%) = ~659 compras adicionales.',
-   h2:[14.19,5.39,1.20],q1:[11.39,6.14,2.29]},
-  {id:'p5',rank:3,name:'Producto 5',sub:'703K vistas en Q1 2026',color:'#7F77DD',rankBg:'#EEEDFE',
-   issue:'Top funnel',isTop:true,decline:'−65%',uplift:'+927',
-   diag:'Las vistas pasaron de 14K (Ene 2026) a 383K (Feb 2026) — 27 veces en un mes. El ratio Sesiones:Vistas pasó de 13% a 87%. El CVR Vista→Checkout colapsó −73% en mobile.',
-   hyp:'Se lanzó una campaña con landing page directa en Feb 2026. El mensaje no filtra al comprador B2B correcto, enviando volumen masivo sin intención de compra.',
-   gap:'Fecha de lanzamiento de campaña en Feb 2026, UTMs de los nuevos visitantes, bounce rate por fuente.',
-   action:'Segmentar la campaña a audiencias con señales B2B. Test A/B: mensaje orientado al problema del negocio vs. mensaje orientado al producto.',
-   kpi:'CVR Vista→Checkout en mobile + costo por compra de la campaña',
-   lift:'Recuperar tasa de Dic-Ene (11-13% v2c) = ~927 compras adicionales/trimestre.',
-   h2:[5.03,5.32,0.47],q1:[11.75,1.45,0.62]},
-];
-
-const pcont=document.getElementById('product-cards');
-products.forEach(p=>{
-  pcont.innerHTML+=`
-  <div class="product-header" onclick="toggleProd('${p.id}')">
-    <div class="hdr-left">
-      <div class="rank" style="background:${p.rankBg};color:${p.color}">${p.rank}</div>
-      <div><div class="prod-name">${p.name}</div><div class="prod-sub">${p.sub}</div></div>
+  <!-- Device distribution -->
+  <div class="card">
+    <div class="card-title">Distribución de sesiones por dispositivo</div>
+    <div style="margin-bottom:16px">
+      <div class="dev-row"><div class="dev-lbl">Mobile</div><div class="dev-track"><div class="dev-fill" style="width:93.2%;background:#f97316"></div></div><div class="dev-pct">93.2%</div><div class="dev-ses">16,110,206</div></div>
+      <div class="dev-row"><div class="dev-lbl">Desktop</div><div class="dev-track"><div class="dev-fill" style="width:4%;background:#3b82f6"></div></div><div class="dev-pct">4.0%</div><div class="dev-ses">690,346</div></div>
+      <div class="dev-row"><div class="dev-lbl">Tablet</div><div class="dev-track"><div class="dev-fill" style="width:2.6%;background:#a855f7"></div></div><div class="dev-pct">2.6%</div><div class="dev-ses">460,243</div></div>
+      <div class="dev-row"><div class="dev-lbl">Smart TV</div><div class="dev-track"><div class="dev-fill" style="width:0.2%;background:#475569"></div></div><div class="dev-pct">0.2%</div><div class="dev-ses">543</div></div>
     </div>
-    <div class="hdr-right">
-      <span class="badge ${p.isTop?'badge-top':'badge-bot'}">${p.issue}</span>
-      <span class="decline">${p.decline}</span>
-      <span class="arrow" id="arr-${p.id}">▼</span>
+    <div class="sbox orange"><div class="sbox-lbl">Implicación clave</div><div class="sbox-txt">Mobile concentra el 93% del tráfico. Cualquier problema de conversión es casi con certeza un problema mobile. Smart TV y (other) se excluyen por volumen irrelevante e imposibilidad de acción.</div></div>
+  </div>
+
+  <!-- Funnel global -->
+  <div class="card">
+    <div class="card-title">Funnel general por producto — período completo Jul 2025 – Mar 2026</div>
+    <div style="position:relative;height:180px;width:100%"><canvas id="chartFunnelGlobal"></div></canvas>
+  </div>
+
+  <!-- Heatmap -->
+  <div class="card">
+    <div class="card-title">Mapa de calor — CVR Total mensual por producto <span style="font-weight:400;color:#475569;margin-left:8px;font-size:10px">Verde = alto · Rojo = bajo · Columnas marcadas = Q1 2026</span></div>
+    <div style="overflow-x:auto">
+      <table class="heatmap" id="heatmapTable"></table>
+    </div>
+    <div class="sbox" style="margin-top:16px">
+      <div class="sbox-txt"><strong style="color:#f1f5f9">Patrón clave:</strong> Producto 3 y Producto 5 se vuelven rojos simultáneamente en febrero 2026. Producto 4 tiene un degradado gradual desde septiembre 2025. Producto 1 y Producto 2 se mantienen verdes en Q1. La caída no es sistémica — está focalizada.</div>
     </div>
   </div>
-  <div class="product-body" id="body-${p.id}">
-    <div class="row2">
-      <div>
-        <div class="card-title">CVR Vista→Checkout por dispositivo (H2 2025 vs Q1 2026)</div>
-        <div class="chart-mini"><canvas id="ch-${p.id}"></canvas></div>
-      </div>
-      <div class="diag-box" style="border-left:3px solid ${p.color}">
-        <div class="box-title">Diagnóstico</div>
-        <div class="box-text">${p.diag}</div>
-      </div>
-    </div>
-    <div class="row2">
-      <div class="diag-box">
-        <div class="box-title">Hipótesis</div>
-        <div class="box-text">${p.hyp}</div>
-      </div>
-      <div class="warn-box" style="border-left-color:${p.color}">
-        <div class="warn-title" style="color:${p.color}">Dato faltante crítico</div>
-        <div class="box-text">${p.gap}</div>
-      </div>
-    </div>
-    <div class="diag-box" style="border-top:3px solid ${p.color}">
-      <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px">
-        <div><div class="kpi-label">Experimento / acción</div><div class="box-text">${p.action}</div></div>
-        <div><div class="kpi-label">KPI impactado</div><div class="kpi-val" style="color:${p.color}">${p.kpi}</div></div>
-        <div><div class="kpi-label">Impacto esperado</div><div class="box-text">${p.lift}</div><div class="uplift">${p.uplift}</div></div>
-      </div>
-    </div>
-  </div>`;
-});
 
-function toggleProd(id){
-  const body=document.getElementById('body-'+id);
-  const arr=document.getElementById('arr-'+id);
-  const isOpen=body.classList.contains('open');
-  body.classList.toggle('open',!isOpen);
-  arr.classList.toggle('open',!isOpen);
-  if(!isOpen) renderMiniChart(id);
+  <!-- 6 mini trend charts -->
+  <div class="card">
+    <div class="card-title">Evolución mensual CVR Total — todos los productos <span style="font-weight:400;color:#475569;font-size:10px;margin-left:8px">Línea roja = inicio Q1 2026 · Línea gris = promedio H2 2025</span></div>
+    <div class="chart-grid-6" id="miniChartsGrid"></div>
+  </div>
+
+  <!-- Combined trend -->
+  <div class="card">
+    <div class="card-title">Tendencia comparativa — productos seleccionados</div>
+    <div style="position:relative;height:220px;width:100%"><canvas id="chartTrendCombo"></div></canvas>
+  </div>
+
+  <!-- Justificación partición -->
+  <div class="card">
+    <div class="card-title">Por qué se parte en H2 2025 vs Q1 2026</div>
+    <p style="color:#94a3b8;font-size:13px;line-height:1.7">El mapa de calor y las gráficas de tendencia muestran que el CVR es estable de julio a diciembre 2025. A partir de <strong style="color:#f1f5f9">febrero 2026</strong> se observa una caída simultánea en Producto 3 y Producto 5, mientras Producto 4 muestra deterioro gradual desde septiembre 2025. La partición no es arbitraria — está dictada por los propios datos. H2 2025 es la línea base; Q1 2026 es el período problemático.</p>
+  </div>
+
+</div>
+
+<!-- ═══ PANEL: TOP 3 PRODUCTOS ════════════════════════════════════════════════ -->
+<div id="panel-products" class="panel">
+
+  <div style="background:#0a101e;border-radius:10px;padding:14px 18px;border:1px solid #1e293b">
+    <p style="color:#94a3b8;font-size:13px;margin:0;line-height:1.6">Los productos están ordenados por <strong style="color:#f1f5f9">urgencia de intervención</strong>. Producto 4 primero porque la pérdida ocurre cuando el costo de adquisición ya fue pagado. Producto 3 y Producto 5 por volumen de impacto. Haz clic para expandir.</p>
+  </div>
+
+  <!-- P4 -->
+  <div class="p-card" id="card-p4" data-color="#3b82f6">
+    <button class="p-header" onclick="toggleCard('p4')">
+      <div class="p-left">
+        <div class="p-num" style="background:rgba(59,130,246,.15);border:2px solid #3b82f6;color:#3b82f6">1</div>
+        <div>
+          <div class="p-name">Producto 4</div>
+          <div class="p-meta">699K vistas mobile · Bottom Funnel · Fricción en el pago</div>
+        </div>
+      </div>
+      <div class="p-right">
+        <span class="badge" style="background:rgba(59,130,246,.15);color:#93c5fd;border:1px solid rgba(59,130,246,.25);font-size:10px">URGENTE</span>
+        <span class="badge" style="background:rgba(59,130,246,.15);color:#93c5fd;border:1px solid rgba(59,130,246,.25);font-size:10px">Bottom Funnel</span>
+        <span class="p-decline">−18%</span>
+        <span class="p-chevron">▼</span>
+      </div>
+    </button>
+    <div class="p-body">
+      <div class="p-inner">
+        <div style="background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);border-radius:8px;padding:12px 16px;margin:16px 0">
+          <div style="font-size:10px;color:#3b82f6;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Dónde se rompe el funnel</div>
+          <div class="funnel-row"><span class="funnel-lbl">Vista → Checkout (mobile)</span><div class="funnel-vals"><span class="fv fv-h2">H2: 5.39%</span><span class="fv-arr">→</span><span class="fv fv-good">Q1: 6.14% ↑</span></div></div>
+          <div class="funnel-row"><span class="funnel-lbl">Checkout → Compra (mobile)</span><div class="funnel-vals"><span class="fv fv-h2">H2: 7.65%</span><span class="fv-arr">→</span><span class="fv fv-bad">Q1: 5.49% ↓ −28%</span></div></div>
+        </div>
+
+        <!-- Tabla mensual P4 -->
+        <div style="margin:16px 0">
+          <div style="font-size:10px;color:#64748b;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px">CVR mensual detallado — todos los dispositivos</div>
+          <table style="width:100%;border-collapse:collapse;font-size:12px">
+            <thead>
+              <tr style="border-bottom:1px solid #1e293b">
+                <th style="padding:7px 12px;color:#64748b;font-weight:600;font-size:10px;letter-spacing:.06em;text-transform:uppercase;text-align:left">Mes</th>
+                <th style="padding:7px 12px;color:#64748b;font-weight:600;font-size:10px;letter-spacing:.06em;text-transform:uppercase;text-align:right">CVR Total</th>
+                <th style="padding:7px 12px;color:#64748b;font-weight:600;font-size:10px;letter-spacing:.06em;text-transform:uppercase;text-align:right">Vista→Checkout</th>
+                <th style="padding:7px 12px;color:#64748b;font-weight:600;font-size:10px;letter-spacing:.06em;text-transform:uppercase;text-align:right">Checkout→Compra</th>
+                <th style="padding:7px 12px;color:#64748b;font-weight:600;font-size:10px;letter-spacing:.06em;text-transform:uppercase;text-align:right">Vistas</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid rgba(30,41,59,.5)"><td style="padding:7px 12px;color:#94a3b8">Jul 25</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">0.65%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">5.02%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#86efac">12.95%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#475569">339K</td></tr>
+              <tr style="border-bottom:1px solid rgba(30,41,59,.5)"><td style="padding:7px 12px;color:#94a3b8">Ago 25</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">0.49%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">6.01%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#86efac">8.23%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#475569">167K</td></tr>
+              <tr style="border-bottom:1px solid rgba(30,41,59,.5);background:rgba(239,68,68,.05)"><td style="padding:7px 12px;color:#f1f5f9;font-weight:600">Sep 25 ⚠</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#fca5a5">0.15%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#fca5a5">4.19%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#fca5a5">3.50%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#475569">567K</td></tr>
+              <tr style="border-bottom:1px solid rgba(30,41,59,.5)"><td style="padding:7px 12px;color:#94a3b8">Oct 25</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">0.42%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">5.97%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">7.10%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#475569">193K</td></tr>
+              <tr style="border-bottom:1px solid rgba(30,41,59,.5)"><td style="padding:7px 12px;color:#94a3b8">Nov 25</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">0.79%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">7.92%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#86efac">9.97%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#475569">201K</td></tr>
+              <tr style="border-bottom:1px solid rgba(30,41,59,.5)"><td style="padding:7px 12px;color:#94a3b8">Dic 25</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">0.83%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">8.67%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#86efac">9.56%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#475569">106K</td></tr>
+              <tr style="border-bottom:1px solid rgba(30,41,59,.5);border-left:2px solid rgba(59,130,246,.5)"><td style="padding:7px 12px;color:#93c5fd;font-weight:600">Ene 26</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#fca5a5">0.33%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">6.12%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#fca5a5">5.35%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#475569">433K</td></tr>
+              <tr style="border-bottom:1px solid rgba(30,41,59,.5);border-left:2px solid rgba(59,130,246,.5)"><td style="padding:7px 12px;color:#93c5fd;font-weight:600">Feb 26</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#fca5a5">0.36%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">6.17%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#fca5a5">5.84%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#475569">206K</td></tr>
+              <tr style="border-left:2px solid rgba(59,130,246,.5)"><td style="padding:7px 12px;color:#93c5fd;font-weight:600">Mar 26</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">0.53%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">6.53%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#94a3b8">8.17%</td><td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:#475569">107K</td></tr>
+            </tbody>
+          </table>
+          <div style="font-size:12px;color:#64748b;margin-top:10px;font-style:italic">⚠ Septiembre 2025: los checkouts casi se triplicaron (10K→23K) pero las compras no se movieron (826→833). El Checkout→Compra colapsa de 8.23% a 3.50% — señal de que algo cambió en el proceso de pago ese mes. Columnas azules = Q1 2026.</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
+          <div>
+            <div class="chart-box-title">Tendencia CVR mensual</div>
+            <div style="position:relative;height:120px;width:100%"><canvas id="chartP4trend"></div></canvas>
+          </div>
+          <div>
+            <div class="chart-box-title">CVR Total por dispositivo</div>
+            <div style="position:relative;height:120px;width:100%"><canvas id="chartP4device"></div></canvas>
+          </div>
+          <div>
+            <div class="chart-box-title">Etapas del funnel mobile</div>
+            <div style="position:relative;height:120px;width:100%"><canvas id="chartP4funnel"></div></canvas>
+          </div>
+        </div>
+
+        <div style="background:#0f172a;border-left:3px solid #3b82f6;border-radius:0 8px 8px 0;padding:16px 20px;margin-bottom:16px">
+          <div style="font-size:10px;color:#64748b;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px">Diagnóstico</div>
+          <p style="color:#cbd5e1;font-size:13px;line-height:1.7;margin-bottom:12px">El patrón de Producto 4 es el opuesto al de Producto 3. El <strong style="color:#f1f5f9">CVR Vista→Checkout mejoró</strong> entre H2 2025 y Q1 2026 — la página del producto está funcionando bien y los usuarios tienen intención de comprar. Sin embargo, el <strong style="color:#f1f5f9">CVR Checkout→Compra cayó −28%</strong> en mobile en el mismo período.</p>
+          <p style="color:#cbd5e1;font-size:13px;line-height:1.7;margin-bottom:12px">La tabla mensual revela un patrón que se repite consistentemente desde agosto 2025: <strong style="color:#f1f5f9">cuando el CVR Vista→Checkout sube, el Checkout→Compra cae</strong>. Agosto: V→C sube a 6.01%, C→P cae a 8.23%. Septiembre: vistas explotan a 567K, C→P se hunde a 3.50%. Octubre-Diciembre: vistas se normalizan, C→P se recupera a 7-9%. Enero-Febrero 2026: V→C vuelve a subir, C→P cae de nuevo a 5.35% y 5.84%.</p>
+          <p style="color:#cbd5e1;font-size:13px;line-height:1.7;margin-bottom:0">Esto sugiere que hay un segmento de usuarios con suficiente intención para llegar al checkout pero no para completar el pago — posiblemente por precio, fricción en el formulario o falta de métodos de pago adecuados en mobile. <strong style="color:#f1f5f9">No es quién llega, sino qué encuentra cuando intenta pagar.</strong></p>
+        </div>
+
+        <div style="background:#0f172a;border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;padding:16px 20px;margin-bottom:16px">
+          <div style="font-size:10px;color:#64748b;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px">Tipo de problema</div>
+          <p style="color:#cbd5e1;font-size:13px;line-height:1.7;margin-bottom:0">Es un problema de <strong style="color:#f1f5f9">fricción en el bottom funnel</strong> (parte inferior del embudo). El usuario llega al producto, se convence de comprarlo e inicia el proceso de pago, pero algo dentro de ese flujo lo detiene. La caída no tiene un quiebre abrupto como Producto 3 — el patrón viene construyéndose desde agosto 2025 — lo que apunta a un deterioro estructural en el proceso de pago más que a un evento puntual de tráfico.</p>
+        </div>
+
+        <div style="background:#0a1e0f;border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:16px 20px;margin-bottom:16px">
+          <div style="font-size:10px;color:#22c55e;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Insight clave</div>
+          <p style="color:#cbd5e1;font-size:13px;line-height:1.7;margin-bottom:0">El usuario ya tomó la decisión de comprar. La pérdida ocurre en el último paso, que es el más costoso porque el costo de adquisición ya fue pagado y la venta se pierde a metros de la meta. Un problema en esta etapa tiene mayor urgencia relativa que un problema de intención.</p>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+          <div class="info-cell"><div class="info-cell-lbl">Hipótesis</div><div class="info-cell-txt">El crecimiento sostenido de vistas arrastra más usuarios al checkout, lo que expone una fricción que ya existía en el proceso de pago mobile — nuestro canal principal con el 93.2% del tráfico. Puede ser el botón de compra que no responde correctamente en ciertos dispositivos, el formulario de datos largo o confuso en pantalla pequeña, o un paso de validación que genera abandono en el último metro.</div></div>
+          <div class="info-cell" style="background:#0a1528;border:1px solid #1e3a5f"><div class="info-cell-lbl" style="color:#60a5fa">Experimento A/B</div><div class="info-cell-txt">Auditar el checkout mobile paso a paso. Variante A: Apple Pay / Google Pay como opciones prominentes, reduciendo pasos de formulario. Variante B: barra de progreso con indicadores de seguridad visibles. Baseline: checkout actual.</div></div>
+        </div>
+
+        <div class="uplift-row">
+          <div>
+            <div style="font-size:11px;color:#3b82f6;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">KPI → CVR Checkout→Compra en mobile</div>
+            <div style="font-size:13px;color:#94a3b8">Recuperar CVR_c2p de 5.49% a 8.17% (niveles Dic 2025)</div>
+            <div style="font-size:11px;color:#ef4444;margin-top:6px">⚠ Dato faltante: abandono por paso del checkout (step-level funnel)</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Uplift estimado</div>
+            <div class="uplift-val">+523</div>
+            <div style="font-size:11px;color:#475569">compras / trimestre (mobile)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P3 -->
+  <div class="p-card" id="card-p3" data-color="#f97316">
+    <button class="p-header" onclick="toggleCard('p3')">
+      <div class="p-left">
+        <div class="p-num" style="background:rgba(249,115,22,.15);border:2px solid #f97316;color:#f97316">2</div>
+        <div>
+          <div class="p-name">Producto 3</div>
+          <div class="p-meta">3.2M vistas mobile · Top Funnel · Tráfico sin intención de compra</div>
+        </div>
+      </div>
+      <div class="p-right">
+        <span class="badge" style="background:rgba(249,115,22,.15);color:#fdba74;border:1px solid rgba(249,115,22,.25);font-size:10px">ALTO IMPACTO</span>
+        <span class="badge" style="background:rgba(249,115,22,.15);color:#fdba74;border:1px solid rgba(249,115,22,.25);font-size:10px">Top Funnel</span>
+        <span class="p-decline">−56%</span>
+        <span class="p-chevron">▼</span>
+      </div>
+    </button>
+    <div class="p-body">
+      <div class="p-inner">
+        <div style="background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.2);border-radius:8px;padding:12px 16px;margin:16px 0">
+          <div style="font-size:10px;color:#f97316;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Dónde se rompe el funnel</div>
+          <div class="funnel-row"><span class="funnel-lbl">Vista → Checkout (mobile)</span><div class="funnel-vals"><span class="fv fv-h2">H2: 5.10%</span><span class="fv-arr">→</span><span class="fv fv-bad">Q1: 3.00% ↓ −41%</span></div></div>
+          <div class="funnel-row"><span class="funnel-lbl">Checkout → Compra (mobile)</span><div class="funnel-vals"><span class="fv fv-h2">H2: 4.98%</span><span class="fv-arr">→</span><span class="fv fv-bad">Q1: 3.95% ↓ estable</span></div></div>
+          <div style="font-size:12px;color:#94a3b8;margin-top:8px;font-style:italic">Las vistas pasaron de 250K (Ene) a 1.74M (Feb) — multiplicadas por 6 — sin aumento proporcional en compras.</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
+          <div>
+            <div class="chart-box-title">Tendencia CVR mensual</div>
+            <div style="position:relative;height:120px;width:100%"><canvas id="chartP3trend"></div></canvas>
+          </div>
+          <div>
+            <div class="chart-box-title">CVR Total por dispositivo</div>
+            <div style="position:relative;height:120px;width:100%"><canvas id="chartP3device"></div></canvas>
+          </div>
+          <div>
+            <div class="chart-box-title">Spike de vistas vs CVR</div>
+            <div style="position:relative;height:120px;width:100%"><canvas id="chartP3spike"></div></canvas>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">
+          <div class="info-cell"><div class="info-cell-lbl">Diagnóstico</div><div class="info-cell-txt">Súbita entrada de tráfico no cualificado en mobile en Feb 2026. El CVR Vista→Checkout colapsó mientras el Checkout→Compra se mantuvo estable. El problema está en la calidad del tráfico, no en la página ni en el pago.</div></div>
+          <div class="info-cell"><div class="info-cell-lbl">Hipótesis</div><div class="info-cell-txt">Una campaña de adquisición con segmentación amplia comenzó a enviar tráfico masivo de usuarios no-B2B directamente a la página del producto en febrero 2026.</div></div>
+          <div class="info-cell" style="background:#0a1528;border:1px solid #1e3a5f"><div class="info-cell-lbl" style="color:#60a5fa">Experimento A/B</div><div class="info-cell-txt">Variante A: qualification widget (3 preguntas: tamaño del negocio, volumen de transacciones, dispositivo actual) antes del CTA. Variante B: página actual. KPI: CVR Vista→Checkout mobile.</div></div>
+        </div>
+
+        <div class="uplift-row">
+          <div>
+            <div style="font-size:11px;color:#f97316;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">KPI → CVR Vista→Checkout en mobile</div>
+            <div style="font-size:13px;color:#94a3b8">Si el 30% del tráfico nuevo alcanza tasa del tráfico orgánico: ~1,750 compras adicionales / trimestre</div>
+            <div style="font-size:11px;color:#ef4444;margin-top:6px">⚠ Dato faltante: desglose por UTM/canal para Feb-Mar 2026</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Uplift estimado</div>
+            <div class="uplift-val">+4,352</div>
+            <div style="font-size:11px;color:#475569">compras / trimestre (mobile)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P5 -->
+  <div class="p-card" id="card-p5" data-color="#a855f7">
+    <button class="p-header" onclick="toggleCard('p5')">
+      <div class="p-left">
+        <div class="p-num" style="background:rgba(168,85,247,.15);border:2px solid #a855f7;color:#a855f7">3</div>
+        <div>
+          <div class="p-name">Producto 5</div>
+          <div class="p-meta">658K vistas mobile · Top Funnel · Explosión de tráfico sin conversión</div>
+        </div>
+      </div>
+      <div class="p-right">
+        <span class="badge" style="background:rgba(168,85,247,.15);color:#d8b4fe;border:1px solid rgba(168,85,247,.25);font-size:10px">EXTREMO</span>
+        <span class="badge" style="background:rgba(168,85,247,.15);color:#d8b4fe;border:1px solid rgba(168,85,247,.25);font-size:10px">Top Funnel</span>
+        <span class="p-decline">−65%</span>
+        <span class="p-chevron">▼</span>
+      </div>
+    </button>
+    <div class="p-body">
+      <div class="p-inner">
+        <div style="background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.2);border-radius:8px;padding:12px 16px;margin:16px 0">
+          <div style="font-size:10px;color:#a855f7;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">La señal más extrema del dataset</div>
+          <div class="funnel-row"><span class="funnel-lbl">Vista → Checkout (mobile)</span><div class="funnel-vals"><span class="fv fv-h2">H2: 5.32%</span><span class="fv-arr">→</span><span class="fv fv-bad">Q1: 1.44% ↓ −73%</span></div></div>
+          <div class="funnel-row"><span class="funnel-lbl">Checkout → Compra (mobile)</span><div class="funnel-vals"><span class="fv fv-h2">H2: 3.13%</span><span class="fv-arr">→</span><span class="fv fv-good">Q1: 3.80% ↑</span></div></div>
+          <div style="font-size:12px;color:#94a3b8;margin-top:8px;font-style:italic">Ene 2026: 14K vistas, CVR 0.81%. Feb 2026: 383K vistas, CVR 0.057%. El ratio Sesiones:Vistas pasó del 13% al 87% en un mes.</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
+          <div>
+            <div class="chart-box-title">Tendencia CVR mensual</div>
+            <div style="position:relative;height:120px;width:100%"><canvas id="chartP5trend"></div></canvas>
+          </div>
+          <div>
+            <div class="chart-box-title">CVR Total por dispositivo</div>
+            <div style="position:relative;height:120px;width:100%"><canvas id="chartP5device"></div></canvas>
+          </div>
+          <div>
+            <div class="chart-box-title">Spike de vistas vs CVR</div>
+            <div style="position:relative;height:120px;width:100%"><canvas id="chartP5spike"></div></canvas>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">
+          <div class="info-cell"><div class="info-cell-lbl">Diagnóstico</div><div class="info-cell-txt">Una campaña con landing page directa al producto se lanzó en Feb 2026 generando tráfico masivo de usuarios sin perfil B2B. El producto es de nicho y el mensaje no filtra al comprador correcto.</div></div>
+          <div class="info-cell"><div class="info-cell-lbl">Hipótesis</div><div class="info-cell-txt">Paid social con landing directa al producto. El ratio Sesiones:Vistas del 87% confirma que el tráfico llega directo sin navegar el catálogo. No tiene contexto del producto ni intención de compra real.</div></div>
+          <div class="info-cell" style="background:#0a1528;border:1px solid #1e3a5f"><div class="info-cell-lbl" style="color:#60a5fa">Experimento A/B</div><div class="info-cell-txt">Segmentar campaña a audiencias B2B (cargo, industria, comportamiento). Test landing: hero orientado al dolor del negocio ("¿Tu terminal falla cuando más la necesitas?") vs. actual orientado al producto.</div></div>
+        </div>
+
+        <div class="uplift-row">
+          <div>
+            <div style="font-size:11px;color:#a855f7;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">KPI → CVR Vista→Checkout mobile + costo por compra de campaña</div>
+            <div style="font-size:13px;color:#94a3b8">Recuperando CVR a niveles Dic-Ene (11-13% v2c, 6-7% c2p)</div>
+            <div style="font-size:11px;color:#ef4444;margin-top:6px">⚠ Dato faltante: fecha exacta lanzamiento campaña Feb 2026 y UTMs de nuevos visitantes</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Uplift estimado</div>
+            <div class="uplift-val">+733</div>
+            <div style="font-size:11px;color:#475569">compras / trimestre (mobile)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Total uplift -->
+  <div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center">
+    <div>
+      <div style="font-size:11px;color:#64748b;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Uplift total estimado</div>
+      <div style="font-size:13px;color:#94a3b8">Recuperando CVR a niveles H2 2025 en los tres productos</div>
+    </div>
+    <div style="text-align:right">
+      <div style="color:#22c55e;font-weight:800;font-size:36px;font-family:'DM Mono',monospace">+5,608</div>
+      <div style="font-size:12px;color:#475569">compras adicionales / trimestre (mobile)</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ PANEL: NOTAS ══════════════════════════════════════════════════════════ -->
+<div id="panel-notes" class="panel">
+
+  <div class="anomaly-red">
+    <div class="anomaly-lbl" style="color:#f87171">⚠ Anomalía de tracking — Accesorios</div>
+    <div class="anomaly-txt">El producto "Accesorios" registra CheckedOut (201,194) mayor que Viewed (74,966) en todos los dispositivos — ratio de 2.7× que es matemáticamente imposible en un funnel estándar. El evento de checkout se dispara en sesiones donde el tag de "viewed" no fue registrado, posiblemente porque el producto se agrega al carrito automáticamente desde el Kit de Producto 5 o por cross-sell durante el checkout de otro producto. El CVR de Accesorios no es accionable hasta corregir el etiquetado.</div>
+  </div>
+
+  <div class="anomaly-blue">
+    <div class="anomaly-lbl" style="color:#60a5fa">ℹ Anomalía parcial — Producto 1 en Desktop</div>
+    <div class="anomaly-txt">Producto 1 en Desktop muestra CheckedOut (98,890) mayor que Viewed (28,854), con CVR Vista→Checkout del 342%. En mobile y tablet los valores son razonables (17% y 5%). El CVR global de Producto 1 está sesgado por Desktop. Para cualquier análisis debe excluirse Desktop o corregirse el tag primero. Por esta razón Producto 1 no se incluye entre los seleccionados pese a mostrar mejora aparente en el total.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 Datos críticos que el dataset no proporciona</div>
+    <div class="missing-item">
+      <div class="missing-arrow">→</div>
+      <div><div class="missing-title">Canal de adquisición / UTM por sesión</div><div class="missing-desc">Sin esto es imposible confirmar qué campaña específica originó el spike de tráfico de febrero 2026 en Producto 3 y Producto 5, ni calcular el CAC para medir el ROI real de las acciones propuestas.</div></div>
+    </div>
+    <div class="missing-item">
+      <div class="missing-arrow">→</div>
+      <div><div class="missing-title">Abandono por paso del checkout (step-level funnel)</div><div class="missing-desc">Necesario para diagnosticar exactamente en qué campo o pantalla se pierde el usuario de Producto 4. Sin esto el experimento A/B es una apuesta, no una hipótesis informada.</div></div>
+    </div>
+    <div class="missing-item">
+      <div class="missing-arrow">→</div>
+      <div><div class="missing-title">Historial de deploys y cambios en campañas</div><div class="missing-desc">Para correlacionar el deterioro gradual de Producto 4 (desde Sep 2025) y el colapso de P3/P5 (Feb 2026) con eventos de negocio o cambios técnicos específicos.</div></div>
+    </div>
+    <div class="missing-item">
+      <div class="missing-arrow">→</div>
+      <div><div class="missing-title">Métricas de página: LCP, FID, bounce rate, scroll depth</div><div class="missing-desc">Complementarias al CVR para determinar si el problema de Producto 4 es técnico (velocidad de carga) o de UX (formulario confuso, método de pago no disponible en mobile).</div></div>
+    </div>
+    <div class="missing-item">
+      <div class="missing-arrow">→</div>
+      <div><div class="missing-title">Precio y márgenes por producto</div><div class="missing-desc">Sin esto el uplift está expresado en unidades de compra, no en impacto económico real. Con precios y márgenes se puede calcular el ROI exacto de cada experimento y priorizar por ingreso, no solo por volumen.</div></div>
+    </div>
+  </div>
+
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <p>Análisis de CVR — 273,820 observaciones · Jul 2025 – Mar 2026</p>
+  <p>CVR = Σ Compras / Σ Vistas · Nunca promedios de tasas</p>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+const MESES = ["Jul 25","Ago 25","Sep 25","Oct 25","Nov 25","Dic 25","Ene 26","Feb 26","Mar 26"];
+const PROD_COLORS = {"Producto 1":"#3b82f6","Producto 2":"#22c55e","Producto 3":"#f97316","Producto 4":"#f59e0b","Producto 5":"#a855f7","Kit P5":"#64748b"};
+
+const MD = {
+  "Producto 1": {cvr:[0.5102,7.258,7.2249,1.6193,2.2173,2.1721,1.5019,1.8588,3.5148], v:[15200,22000,19000,48000,36000,44000,58000,67000,45000]},
+  "Producto 2": {cvr:[0,0.2028,0.1887,0.3588,0.8343,0.4649,0.3148,0.3291,0.5362], v:[520000,480000,440000,610000,380000,510000,420000,390000,380000]},
+  "Producto 3": {cvr:[0.2369,0.1787,0.3641,0.3794,0.4389,0.7401,0.4009,0.1363,0.0765], v:[720596,311155,286714,303104,116643,44181,250201,1743613,1487103]},
+  "Producto 4": {cvr:[0.6502,0.4949,0.1469,0.4237,0.7899,0.8289,0.3272,0.3603,0.5332], v:[339127,166896,567175,193050,200905,105559,432811,206223,107269]},
+  "Producto 5": {cvr:[0.1348,0.1849,0.1491,0,0.0826,0.7360,0.8136,0.0568,0.0569], v:[15582,8112,5367,4528,2422,5163,14258,383587,305866]},
+  "Kit P5":     {cvr:[0.4412,0.1075,0.5260,0.0360,0.0162,0.1387,0.0723,0,0], v:[28000,31000,22000,42000,38000,25000,30000,28000,24000]},
+};
+
+const DEV = {
+  "Producto 3": {h2:[1.34,0.25,0.03],q1:[1.16,0.12,0.01]},
+  "Producto 4": {h2:[2.00,0.41,0.08],q1:[1.48,0.34,0.07]},
+  "Producto 5": {h2:[0.38,0.17,0.00],q1:[1.17,0.06,0.01]},
+};
+
+// ── CHART DEFAULTS ────────────────────────────────────────────────────────────
+Chart.defaults.color = '#64748b';
+Chart.defaults.borderColor = '#1e293b';
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+const grid = {color:'rgba(30,41,59,.6)',lineWidth:.7};
+const tick = {color:'#475569',font:{size:10}};
+function tt(items){return{background:'#0f172a',borderColor:'#334155',borderWidth:1,borderRadius:8,padding:{x:12,y:8},callbacks:{label:i=>`${i.dataset.label||i.label}: ${i.formattedValue}`}};}
+function refLine(){return{id:'ref',beforeDraw(c){const{ctx,chartArea:a,scales:s}=c;const x=s.x?.getPixelForValue?.('Ene 26');if(!x||!a)return;ctx.save();ctx.strokeStyle='rgba(239,68,68,.5)';ctx.lineWidth=1.5;ctx.setLineDash([5,4]);ctx.beginPath();ctx.moveTo(x,a.top);ctx.lineTo(x,a.bottom);ctx.stroke();ctx.fillStyle='rgba(239,68,68,.6)';ctx.font='9px DM Mono,monospace';ctx.fillText('Q1',x+3,a.top+12);ctx.restore();}};}
+
+// ── TAB SWITCH ────────────────────────────────────────────────────────────────
+const chartsInited = {};
+function showTab(id, btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(!chartsInited[id]){chartsInited[id]=true;setTimeout(()=>initCharts(id),50);}
 }
 
-function renderMiniChart(id){
-  const canvas=document.getElementById('ch-'+id);
-  if(canvas._done) return; canvas._done=true;
-  const p=products.find(x=>x.id===id);
-  new Chart(canvas,{
+function initCharts(tab){
+  if(tab==='overview') initOverview();
+  if(tab==='eda') initEDA();
+  if(tab==='products') initProducts();
+}
+
+// ── OVERVIEW CHARTS ───────────────────────────────────────────────────────────
+function initOverview(){
+  const data = [
+    {label:'Kit P5 y Acc'  ,v:-94,c:'#ef4444'},{label:'Producto 5',v:-67,c:'#a855f7'},
+    {label:'Producto 3'    ,v:-53,c:'#f97316'},{label:'Producto 4',v:-18,c:'#f59e0b'},
+    {label:'Producto 2'    ,v:15, c:'#22c55e'},{label:'Producto 1',v:9,  c:'#22c55e'},
+  ];
+  new Chart(document.getElementById('chartCambios'),{
+    type:'bar',
+    data:{labels:data.map(d=>d.label),datasets:[{data:data.map(d=>d.v),backgroundColor:data.map(d=>d.c+'aa'),borderColor:data.map(d=>d.c),borderWidth:1,borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:tt()},
+      scales:{x:{grid,ticks:{...tick,callback:v=>v+'%'},border:{display:false}},y:{grid:{display:false},ticks:tick,border:{display:false}}}}
+  });
+}
+chartsInited['overview']=true;
+chartsInited['eda']=true;
+setTimeout(()=>{initOverview();initEDA();},50);
+
+// ── EDA CHARTS ────────────────────────────────────────────────────────────────
+function initEDA(){
+  // Funnel global
+  const fdata = [
+    {p:'Producto 2',v:5788,c:242,u:18},{p:'Producto 3',v:5263,c:199,u:9},
+    {p:'Producto 4',v:2319,c:133,u:9},{p:'Producto 1',v:454,c:171,u:8},
+    {p:'Producto 5',v:744,c:13,u:0.6},{p:'Kit P5',v:303,c:9,u:0.4},
+  ];
+  new Chart(document.getElementById('chartFunnelGlobal'),{
+    type:'bar',
+    data:{labels:fdata.map(d=>d.p),datasets:[
+      {label:'Vistas (K)',data:fdata.map(d=>d.v),backgroundColor:'rgba(59,130,246,.4)',borderColor:'#3b82f6',borderWidth:1,borderRadius:3},
+      {label:'Checkouts (K)',data:fdata.map(d=>d.c),backgroundColor:'rgba(249,115,22,.5)',borderColor:'#f97316',borderWidth:1,borderRadius:3},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12,font:{size:11}}},tooltip:tt()},
+      scales:{x:{grid:{display:false},ticks:tick,border:{display:false}},y:{grid,ticks:tick,border:{display:false}}}}
+  });
+
+  // Heatmap
+  const prods = ["Producto 1","Producto 2","Producto 3","Producto 4","Producto 5","Kit P5"];
+  function hc(v,mn,mx){if(!v)return'#0a101e';const t=mx===mn?.5:(v-mn)/(mx-mn);const r=Math.round(239+(34-239)*t);const g=Math.round(68+(197-68)*t);const b=Math.round(68+(94-68)*t);return`rgba(${r},${g},${b},.75)`;}
+  let thead='<thead><tr><th></th>';
+  MESES.forEach((m,i)=>{thead+=`<th style="${i>=6?'color:#ef4444':''}${i===6?';font-weight:700':''}">${m}</th>`;});
+  thead+='</tr></thead>';
+  let tbody='<tbody>';
+  prods.forEach(p=>{
+    const vals=MD[p].cvr;const nz=vals.filter(v=>v>0);const mn=Math.min(...nz);const mx=Math.max(...nz);
+    tbody+=`<tr><td class="rl" style="color:${PROD_COLORS[p]}">${p}</td>`;
+    vals.forEach((v,i)=>{tbody+=`<td style="background:${hc(v,mn,mx)};${i===6?'border-left:2px solid rgba(239,68,68,.5)':''}">${v===0?'—':v.toFixed(2)+'%'}</td>`;});
+    tbody+='</tr>';
+  });
+  tbody+='</tbody>';
+  document.getElementById('heatmapTable').innerHTML=thead+tbody;
+
+  // 6 mini trend charts
+  const grid6 = document.getElementById('miniChartsGrid');
+  prods.forEach(prod=>{
+    const box=document.createElement('div');box.className='chart-box';
+    box.innerHTML=`<div class="chart-box-title" style="color:${PROD_COLORS[prod]}">${prod}</div><div style="position:relative;height:110px;width:100%"><canvas id="mini_${prod.replace(/\s/g,'_')}"></div></canvas>`;
+    grid6.appendChild(box);
+    const vals=MD[prod].cvr;const h2avg=vals.slice(0,6).reduce((a,b)=>a+b,0)/6;
+    const data=MESES.map((m,i)=>({mes:m,cvr:vals[i]}));
+    new Chart(document.getElementById(`mini_${prod.replace(/\s/g,'_')}`),{
+      type:'line',
+      data:{labels:MESES,datasets:[{data:vals,borderColor:PROD_COLORS[prod],backgroundColor:'transparent',tension:.3,pointRadius:2,borderWidth:2}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:tt()},
+        scales:{x:{grid,ticks:{...tick,font:{size:8}},border:{display:false}},y:{grid,ticks:{...tick,font:{size:8}},border:{display:false}}},
+      },
+      plugins:[refLine(),{id:'baseline',beforeDraw(c){const{ctx,chartArea:a,scales:s}=c;if(!a)return;const y=s.y.getPixelForValue(h2avg);ctx.save();ctx.strokeStyle='rgba(71,85,105,.6)';ctx.lineWidth=1;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(a.left,y);ctx.lineTo(a.right,y);ctx.stroke();ctx.restore();}}]
+    });
+  });
+
+  // Combo trend
+  new Chart(document.getElementById('chartTrendCombo'),{
+    type:'line',
+    data:{labels:MESES,datasets:['Producto 3','Producto 4','Producto 5'].map(p=>({label:p,data:MD[p].cvr,borderColor:PROD_COLORS[p],backgroundColor:'transparent',tension:.3,pointRadius:4,pointBackgroundColor:'#060b14',pointBorderWidth:2,borderWidth:2.5}))},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12,font:{size:11}}},tooltip:{...tt(),mode:'index',intersect:false}},
+      scales:{x:{grid,ticks:tick,border:{display:false}},y:{grid,ticks:{...tick,callback:v=>v+'%'},border:{display:false}}},
+      interaction:{mode:'index',intersect:false}
+    },
+    plugins:[refLine()]
+  });
+}
+
+// ── PRODUCT CARD CHARTS ───────────────────────────────────────────────────────
+let prodChartsInited=false;
+function initProducts(){
+  if(prodChartsInited)return;prodChartsInited=true;
+  setTimeout(()=>{
+    // P4
+    mkTrend('chartP4trend','Producto 4','#f59e0b');
+    mkDevice('chartP4device','Producto 4','#f59e0b');
+    new Chart(document.getElementById('chartP4funnel'),{
+      type:'bar',
+      data:{labels:['V→C Desktop','V→C Mobile','C→P Desktop','C→P Mobile'],
+        datasets:[
+          {label:'H2 2025',data:[14.19,5.39,14.09,7.65],backgroundColor:'rgba(59,130,246,.5)',borderColor:'#3b82f6',borderWidth:1,borderRadius:3},
+          {label:'Q1 2026',data:[11.39,6.14,12.98,5.49],backgroundColor:(ctx)=>ctx.raw<[14.19,5.39,14.09,7.65][ctx.dataIndex]?'rgba(239,68,68,.6)':'rgba(34,197,94,.6)',borderWidth:1,borderRadius:3},
+        ]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:tt()},
+        scales:{x:{grid:{display:false},ticks:{...tick,font:{size:9}},border:{display:false}},y:{grid,ticks:{...tick,callback:v=>v+'%'},border:{display:false}}}}
+    });
+    // P3
+    mkTrend('chartP3trend','Producto 3','#f97316');
+    mkDevice('chartP3device','Producto 3','#f97316');
+    mkSpike('chartP3spike','Producto 3','#f97316');
+    // P5
+    mkTrend('chartP5trend','Producto 5','#a855f7');
+    mkDevice('chartP5device','Producto 5','#a855f7');
+    mkSpike('chartP5spike','Producto 5','#a855f7');
+  },100);
+}
+
+function mkTrend(id,prod,color){
+  const h2avg=MD[prod].cvr.slice(0,6).reduce((a,b)=>a+b,0)/6;
+  new Chart(document.getElementById(id),{
+    type:'line',
+    data:{labels:MESES,datasets:[{data:MD[prod].cvr,borderColor:color,backgroundColor:color+'18',fill:true,tension:.3,pointRadius:3,pointBackgroundColor:'#060b14',pointBorderWidth:2,borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:tt()},
+      scales:{x:{grid,ticks:{...tick,font:{size:9}},border:{display:false}},y:{grid,ticks:{...tick,callback:v=>v+'%'},border:{display:false}}}},
+    plugins:[refLine(),{id:'bl',beforeDraw(c){const{ctx,chartArea:a,scales:s}=c;if(!a)return;const y=s.y.getPixelForValue(h2avg);ctx.save();ctx.strokeStyle='rgba(71,85,105,.7)';ctx.lineWidth=1;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(a.left,y);ctx.lineTo(a.right,y);ctx.stroke();ctx.restore();}}]
+  });
+}
+
+function mkDevice(id,prod,color){
+  const d=DEV[prod];
+  new Chart(document.getElementById(id),{
     type:'bar',
     data:{labels:['Desktop','Mobile','Tablet'],datasets:[
-      {label:'H2 2025',data:p.h2,backgroundColor:'#e0e0e0',borderRadius:4},
-      {label:'Q1 2026',data:p.q1,backgroundColor:p.color+'bb',borderRadius:4}
+      {label:'H2 2025',data:d.h2,backgroundColor:'rgba(30,41,59,.8)',borderColor:'#334155',borderWidth:1,borderRadius:3},
+      {label:'Q1 2026',data:d.q1,backgroundColor:color+'aa',borderColor:color,borderWidth:1,borderRadius:3},
     ]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:10}},
-               tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y.toFixed(2)+'%'}}},
-      scales:{x:{grid:{display:false},ticks:{font:{size:10}}},
-              y:{grid:{color:'#f0f0f0'},ticks:{font:{size:10},callback:v=>v.toFixed(1)+'%'}}}}
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:10,font:{size:10}}},tooltip:tt()},
+      scales:{x:{grid:{display:false},ticks:tick,border:{display:false}},y:{grid,ticks:{...tick,callback:v=>v+'%'},border:{display:false}}}}
   });
+}
+
+function mkSpike(id,prod,color){
+  const vistas=MD[prod].v.map(v=>Math.round(v/1000));
+  const cvr=MD[prod].cvr;
+  new Chart(document.getElementById(id),{
+    type:'bar',
+    data:{labels:MESES,datasets:[
+      {type:'bar',label:'Vistas (K)',data:vistas,backgroundColor:MESES.map((_,i)=>i>=7?color+'aa':color+'33'),borderColor:MESES.map((_,i)=>i>=7?color:'transparent'),borderWidth:1,borderRadius:3,yAxisID:'y'},
+      {type:'line',label:'CVR %',data:cvr,borderColor:color,backgroundColor:'transparent',tension:.3,pointRadius:3,pointBackgroundColor:'#060b14',pointBorderWidth:2,borderWidth:2,yAxisID:'y2'},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:10,font:{size:10}}},tooltip:{...tt(),mode:'index'}},
+      scales:{
+        x:{grid:{display:false},ticks:{...tick,font:{size:9}},border:{display:false}},
+        y:{grid,ticks:{...tick,font:{size:9},callback:v=>v+'K'},position:'left',border:{display:false}},
+        y2:{grid:{display:false},ticks:{...tick,font:{size:9},callback:v=>v+'%'},position:'right',border:{display:false}},
+      }},
+    plugins:[refLine()]
+  });
+}
+
+// ── TOGGLE CARD ───────────────────────────────────────────────────────────────
+function toggleCard(id){
+  const card=document.getElementById('card-'+id);
+  card.classList.toggle('open');
+  // Update open class with product-specific styling
+  if(card.classList.contains('open')){
+    const colors={'p3':'#f97316','p4':'#3b82f6','p5':'#a855f7'};
+    const c=colors[id];
+    card.style.borderColor=c;
+    card.style.boxShadow=`0 0 24px ${c}30`;
+  } else {
+    card.style.borderColor='#1e293b';
+    card.style.boxShadow='none';
+  }
+  if(card.classList.contains('open')&&!prodChartsInited) initProducts();
 }
 </script>
 </body>
